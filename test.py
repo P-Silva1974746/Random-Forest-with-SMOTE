@@ -54,15 +54,13 @@ for index, dataset_info in datasets_info_df.iterrows():
         dataset=openml.datasets.get_dataset(id)
         X,Y,_,_=dataset.get_data(target=dataset.default_target_attribute , dataset_format="dataframe")
         map_dict=encod_dict(Y)
-        print(Y)
         Y.replace(map_dict, inplace=True)
-        print(Y)
+
         X_train, X_test, Y_train, Y_test =train_test_split(X,Y)
 
         model = RandomForestClassifier(max_depth=15)
         model.fit(X_train,Y_train)
         predictions=model.predict(X_test)
-
         print(f"Accuracy: {accuracy(Y_test,predictions)}")
 
         print("")
