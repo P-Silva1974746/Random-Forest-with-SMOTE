@@ -22,9 +22,9 @@ class BaseEstimator:
             Target values. By default is required, but if y_required = false
             then may be omitted.
         """
+
         if not isinstance(X, np.ndarray):
             X = np.array(X)
-
         if X.size == 0:
             raise ValueError("Got an empty matrix.")
 
@@ -41,7 +41,6 @@ class BaseEstimator:
 
             if not isinstance(y, np.ndarray):
                 y = np.array(y)
-
             if y.size == 0:
                 raise ValueError("The targets array must be no-empty.")
 

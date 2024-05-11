@@ -4,6 +4,7 @@ import numpy as np
 from base import BaseEstimator
 from base_tree import information_gain, mse_criterion
 from tree import Tree
+import SMOTE
 
 
 class RandomForest(BaseEstimator):
@@ -52,7 +53,7 @@ class RandomForest(BaseEstimator):
 
 
 class RandomForestClassifier(RandomForest):
-    def __init__(self, n_estimators=10, max_features=None, min_samples_split=10, max_depth=None, criterion="entropy"):
+    def __init__(self, n_estimators=10, max_features=None, min_samples_split=10, max_depth=None, criterion="entropy", smote = None):
         super(RandomForestClassifier, self).__init__(
             n_estimators=n_estimators,
             max_features=max_features,
@@ -66,6 +67,7 @@ class RandomForestClassifier(RandomForest):
         else:
             raise ValueError()
 
+        self.smote = smote
         # Initialize empty trees
         for _ in range(self.n_estimators):
             self.trees.append(Tree(criterion=self.criterion))
@@ -83,27 +85,8 @@ class RandomForestClassifier(RandomForest):
             predictions[i, :] = row_pred
         return predictions
 
-
-class RandomForestRegressor(RandomForest):
-    def __init__(self, n_estimators=10, max_features=None, min_samples_split=10, max_depth=None, criterion="mse"):
-        super(RandomForestRegressor, self).__init__(
-            n_estimators=n_estimators,
-            max_features=max_features,
-            min_samples_split=min_samples_split,
-            max_depth=max_depth,
-        )
-
-        if criterion == "mse":
-            self.criterion = mse_criterion
-        else:
-            raise ValueError()
-
-        # Initialize empty regression trees
-        for _ in range(self.n_estimators):
-            self.trees.append(Tree(regression=True, criterion=self.criterion))
-
-    def _predict(self, X=None):
-        predictions = np.zeros((X.shape[0], self.n_estimators))
-        for i, tree in enumerate(self.trees):
-            predictions[:, i] = tree.predict(X)
-        return predictions.mean(axis=1)
+    def fit(self, X, y):
+        if self.smote is not None:
+            X, y = self.smote.fit_generate(X, y)
+        
+        super(RandomForestClassifier, self).fit(X, y)

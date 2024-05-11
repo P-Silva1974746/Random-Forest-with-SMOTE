@@ -4,29 +4,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import openml
 from openml import tasks
-
-
-# # Small test with a local dataset just to make sure the code is running 
-
-# df=pd.read_csv("weather.csv")
-# n_col=df.columns.size
-# df['Play'].replace({'no': 0,'yes':1}, inplace=True)
-# Y= df.iloc[:, n_col-1]
-# X= df.iloc[:, 1:n_col-2]
-
-
-# X_train, X_test, Y_train, Y_test= train_test_split(X,Y)
-# print(X_train)
-# print(Y_train)
-# print('''
-
-
-# ''')
-# model=RandomForestClassifier()
-# model.fit(X_train,Y_train)
-# predictions=model.predict(X_test)
-# print(X_test)
-# print(f"Accuracy: {accuracy(Y_test,predictions)}")
+from SMOTE import smote
+import torch
 
 def encod_dict(X):
     dic={}
@@ -38,32 +17,71 @@ def encod_dict(X):
     
     return dic
 
+# benchmark=openml.study.get_suite(suite_id=99)
+# print('''Getting datasets ...
+# ''')
+# datasets_info_df=tasks.list_tasks(output_format="dataframe", task_id=benchmark.tasks)
+# f = open("datasets_used.txt","w")
 
+#Criar uma instância do SMOTE com os parâmetros desejados
+smote_i = smote(distance='euclidian', dims=5, k=5)
 
-benchmark=openml.study.get_suite(suite_id=99)
-print('''Getting datasets ...
-''')
-datasets_info_df=tasks.list_tasks(output_format="dataframe", task_id=benchmark.tasks)
-f = open("datasets_used.txt","w")
-for index, dataset_info in datasets_info_df.iterrows():
-    id=dataset_info["did"]
-    if(dataset_info["NumberOfNumericFeatures"]==dataset_info["NumberOfFeatures"]-1):
-        f.write(f"name: {dataset_info['name']} id: {dataset_info['did']}\n")
-        print(f"name: {dataset_info['name']} id: {dataset_info['did']}")
+# for index, dataset_info in datasets_info_df.iterrows():
+#     id=dataset_info["did"]
+#     if(dataset_info["NumberOfNumericFeatures"]==dataset_info["NumberOfFeatures"]-1):
+#         f.write(f"name: {dataset_info['name']} id: {dataset_info['did']}\n")
+#         print(f"name: {dataset_info['name']} id: {dataset_info['did']}")
         
-        dataset=openml.datasets.get_dataset(id)
-        X,Y,_,_=dataset.get_data(target=dataset.default_target_attribute , dataset_format="dataframe")
-        map_dict=encod_dict(Y)
-        Y.replace(map_dict, inplace=True)
+#         dataset=openml.datasets.get_dataset(id)
+#         X,Y,_,_=dataset.get_data(target=dataset.default_target_attribute , dataset_format="dataframe")
+#         map_dict=encod_dict(Y)
+#         Y.replace(map_dict, inplace=True)
+        
+#         # Aplicar o SMOTE aos conjuntos de dados de treinamento
+        
+#         X_train, X_test, Y_train, Y_test =train_test_split(X,Y)
 
-        X_train, X_test, Y_train, Y_test =train_test_split(X,Y)
+#         X_train= torch.tensor(X_train.values)
+#         Y_train= torch.tensor(Y_train.values)
 
-        model = RandomForestClassifier(max_depth=15)
-        model.fit(X_train,Y_train)
-        predictions=model.predict(X_test)
-        print(f"Accuracy: {accuracy(Y_test,predictions)}")
+#         X_train, Y_train = smote_i.fit_generate(X_train, Y_train)
 
-        print("")
-        print("Spot here for checkpoint each dataset")        
-f.close()
 
+#         model = RandomForestClassifier(max_depth=15)
+#         model.fit(X_train,Y_train)
+#         predictions=model.predict(X_test)
+
+#         print(f"Accuracy: {accuracy(Y_test,predictions)}")
+
+#         print("")
+#         print("Spot here for checkpoint each dataset")        
+# f.close()
+
+
+dataset=openml.datasets.get_dataset(1489)
+X,Y,_,_=dataset.get_data(target=dataset.default_target_attribute , dataset_format="dataframe")
+map_dict=encod_dict(Y)
+Y.replace(map_dict, inplace=True)
+# Aplicar o SMOTE aos conjuntos de dados de treinamento
+        
+X_train, X_test, Y_train, Y_test =train_test_split(X,Y)
+# X_train_cols=list(X_train.columns)
+# Y_train_cols=[Y_train.name]
+
+
+# X_train= torch.tensor(X_train.values)
+# Y_train= torch.tensor(Y_train.values)
+
+# X_train, Y_train = smote_i.fit_generate(X_train, Y_train)
+
+# X_train=X_train.numpy()
+# X_train=pd.DataFrame(X_train, columns=X_train_cols)
+# Y_train=Y_train.numpy()
+# Y_train=pd.DataFrame(Y_train, columns=Y_train_cols)
+
+
+model = RandomForestClassifier(max_depth=15)
+model.fit(X_train,Y_train)
+predictions=model.predict(X_test)
+
+print(f"Accuracy: {accuracy(Y_test,predictions)}")

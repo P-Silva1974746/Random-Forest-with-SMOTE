@@ -5,8 +5,8 @@ from scipy import stats
 
 def f_entropy(p):
     # Convert values to probability
-    p = np.bincount(p) / float(p.shape[0])
 
+    p = np.bincount(p.flatten().astype(int)) / float(p.shape[0])
     ep = stats.entropy(p)
     if ep == -float("inf"):
         return 0.0

@@ -149,7 +149,7 @@ class Tree(object):
                 self.outcome = np.mean(targets["y"])
             else:
                 # Probability for classification task
-                self.outcome = np.bincount(targets["y"], minlength=self.n_classes) / targets["y"].shape[0]
+                self.outcome = np.bincount(targets["y"].flatten().astype(int), minlength=self.n_classes) / targets["y"].shape[0]
 
     def predict_row(self, row):
         """Predict single row."""
