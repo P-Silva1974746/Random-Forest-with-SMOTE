@@ -5,10 +5,12 @@ from base import BaseEstimator
 from base_tree import information_gain, mse_criterion
 from tree import Tree
 import SMOTE
+import torch
+import pandas as pd
 
 
 class RandomForest(BaseEstimator):
-    def __init__(self, n_estimators=10, max_features=None, min_samples_split=10, max_depth=None, criterion=None):
+    def __init__(self, n_estimators=10, max_features=None, min_samples_split=10, max_depth=None, criterion=None, smote=None):
         """Base class for RandomForest.
 
         Parameters
@@ -29,6 +31,7 @@ class RandomForest(BaseEstimator):
         self.max_features = max_features
         self.n_estimators = n_estimators
         self.trees = []
+        self.smote=smote
 
     def fit(self, X, y):
         self._setup_input(X, y)
@@ -87,6 +90,15 @@ class RandomForestClassifier(RandomForest):
 
     def fit(self, X, y):
         if self.smote is not None:
+            X_cols=list(X.columns)
+            y_cols=[y.name]
+            X= torch.tensor(X.values)
+            y= torch.tensor(y.values)
             X, y = self.smote.fit_generate(X, y)
+            X=X.numpy()
+            X=pd.DataFrame(X, columns=X_cols)
+            y=y.numpy()
+            y=pd.DataFrame(y, columns=y_cols)
+
         
         super(RandomForestClassifier, self).fit(X, y)

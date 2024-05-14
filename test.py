@@ -2,6 +2,7 @@ from random_forest import RandomForestClassifier
 from metrics import accuracy
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_auc_score
 import openml
 from openml import tasks
 from SMOTE import smote
@@ -17,6 +18,8 @@ def encod_dict(X):
     
     return dic
 
+def get_classes(predictions, map_dict):
+#TODO
 # benchmark=openml.study.get_suite(suite_id=99)
 # print('''Getting datasets ...
 # ''')
@@ -65,23 +68,12 @@ Y.replace(map_dict, inplace=True)
 # Aplicar o SMOTE aos conjuntos de dados de treinamento
         
 X_train, X_test, Y_train, Y_test =train_test_split(X,Y)
-# X_train_cols=list(X_train.columns)
-# Y_train_cols=[Y_train.name]
 
 
-# X_train= torch.tensor(X_train.values)
-# Y_train= torch.tensor(Y_train.values)
-
-# X_train, Y_train = smote_i.fit_generate(X_train, Y_train)
-
-# X_train=X_train.numpy()
-# X_train=pd.DataFrame(X_train, columns=X_train_cols)
-# Y_train=Y_train.numpy()
-# Y_train=pd.DataFrame(Y_train, columns=Y_train_cols)
-
-
-model = RandomForestClassifier(max_depth=15)
+model = RandomForestClassifier(max_depth=15, smote=smote_i)
 model.fit(X_train,Y_train)
 predictions=model.predict(X_test)
-
-print(f"Accuracy: {accuracy(Y_test,predictions)}")
+print(predictions)
+print(type(predictions))
+print(roc_auc_score(Y_test,predictions))
+#print(f"Accuracy: {accuracy(Y_test,predictions)}")
