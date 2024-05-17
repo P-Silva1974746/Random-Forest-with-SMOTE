@@ -66,6 +66,7 @@ class smote(object):
         T = min_samples.shape[0]
         self.synthetic_arr = torch.zeros(int(N/100)*T,self.dims)
         N = int(N/100)
+        print(N)
         if self.distance_measure == 'euclidian':
             indices = self.find_k(min_samples,k)
         for i in range(indices.shape[0]):
@@ -73,7 +74,7 @@ class smote(object):
         self.newindex = 0 
         return self.synthetic_arr
             
-    def fit_generate(self,X,y):
+    def fit_generate(self,X,y,percentage):
         #get occurence of each class
         occ = torch.eye(int(y.max()+1),int(y.max()+1))[y].sum(axis=0)
         #get the dominant class
@@ -83,7 +84,8 @@ class smote(object):
         for i in range(len(occ)):
             if i != dominant_class:
                 #calculate the amount of synthetic data to generate
-                N = (n_occ - occ[i]) * 100 / occ[i]
+                N = ((n_occ - occ[i]) * 100 / occ[i])*percentage
+                print(N)
                 candidates = X[y == i]
                 xs = self.generate(candidates, N,self.k)
                 X = torch.cat((X,xs))

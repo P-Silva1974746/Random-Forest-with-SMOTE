@@ -43,7 +43,26 @@ class RandomForest(BaseEstimator):
 
     def _train(self):
         for tree in self.trees:
-            tree.train(
+            if self.smote is not None:
+                X=self.X
+                y=self.y
+                #print(type(self.X))
+                X= torch.tensor(X)
+                y= torch.tensor(y)
+                X, y = self.smote.fit_generate(X, y, percentage=1)
+                X=X.numpy()
+                y=y.numpy()
+
+                print(f"dataset apos smote:{X.shape}")
+                tree.train(
+                X,
+                y,
+                max_features=self.max_features,
+                min_samples_split=self.min_samples_split,
+                max_depth=self.max_depth
+            )
+            else:
+                tree.train(
                 self.X,
                 self.y,
                 max_features=self.max_features,
@@ -89,16 +108,5 @@ class RandomForestClassifier(RandomForest):
         return predictions
 
     def fit(self, X, y):
-        if self.smote is not None:
-            X_cols=list(X.columns)
-            y_cols=[y.name]
-            X= torch.tensor(X.values)
-            y= torch.tensor(y.values)
-            X, y = self.smote.fit_generate(X, y)
-            X=X.numpy()
-            X=pd.DataFrame(X, columns=X_cols)
-            y=y.numpy()
-            y=pd.DataFrame(y, columns=y_cols)
 
-        
         super(RandomForestClassifier, self).fit(X, y)

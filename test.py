@@ -18,8 +18,10 @@ def encod_dict(X):
     
     return dic
 
-def get_classes(predictions, map_dict):
-#TODO
+# def get_classes(predictions, map_dict):
+# still to implement
+
+
 # benchmark=openml.study.get_suite(suite_id=99)
 # print('''Getting datasets ...
 # ''')
@@ -27,7 +29,7 @@ def get_classes(predictions, map_dict):
 # f = open("datasets_used.txt","w")
 
 #Criar uma instância do SMOTE com os parâmetros desejados
-smote_i = smote(distance='euclidian', dims=5, k=5)
+smote_i = smote(distance='euclidian', dims=4, k=5)# dimns is number of atributes that are not the target
 
 # for index, dataset_info in datasets_info_df.iterrows():
 #     id=dataset_info["did"]
@@ -61,7 +63,7 @@ smote_i = smote(distance='euclidian', dims=5, k=5)
 # f.close()
 
 
-dataset=openml.datasets.get_dataset(1489)
+dataset=openml.datasets.get_dataset(11)
 X,Y,_,_=dataset.get_data(target=dataset.default_target_attribute , dataset_format="dataframe")
 map_dict=encod_dict(Y)
 Y.replace(map_dict, inplace=True)
@@ -70,10 +72,13 @@ Y.replace(map_dict, inplace=True)
 X_train, X_test, Y_train, Y_test =train_test_split(X,Y)
 
 
+print(f"dataset antes smote {X_train.shape}")
 model = RandomForestClassifier(max_depth=15, smote=smote_i)
 model.fit(X_train,Y_train)
 predictions=model.predict(X_test)
 print(predictions)
 print(type(predictions))
-print(roc_auc_score(Y_test,predictions))
-#print(f"Accuracy: {accuracy(Y_test,predictions)}")
+#print(roc_auc_score(Y_test,predictions))
+print(f"Accuracy: {accuracy(Y_test,predictions)}")
+
+
