@@ -73,7 +73,7 @@ X_train, X_test, Y_train, Y_test =train_test_split(X,Y)
 
 
 print(f"dataset antes smote {X_train.shape}")
-model = RandomForestClassifier(max_depth=15, smote=smote_i)
+model = RandomForestClassifier(max_depth=15, smote=smote_i , smote_type="binary")
 model.fit(X_train,Y_train)
 predictions=model.predict(X_test)
 print(predictions)

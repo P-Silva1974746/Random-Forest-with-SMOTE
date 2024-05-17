@@ -10,7 +10,7 @@ import pandas as pd
 
 
 class RandomForest(BaseEstimator):
-    def __init__(self, n_estimators=10, max_features=None, min_samples_split=10, max_depth=None, criterion=None, smote=None):
+    def __init__(self, n_estimators=10, max_features=None, min_samples_split=10, max_depth=None, criterion=None, smote=None, smote_type=None):
         """Base class for RandomForest.
 
         Parameters
@@ -32,6 +32,7 @@ class RandomForest(BaseEstimator):
         self.n_estimators = n_estimators
         self.trees = []
         self.smote=smote
+        self.smote_type=smote_type
 
     def fit(self, X, y):
         self._setup_input(X, y)
@@ -42,6 +43,14 @@ class RandomForest(BaseEstimator):
         self._train()
 
     def _train(self):
+        if(self.smote_type=="binary"):
+            percentages=[i%2 for i in range(self.n_estimators)]
+            count=0
+        elif(self.smote_type=="gradient" and self.n_estimators==10):
+            percentages=[0,0.2,0.2,0.4,0.4,0.6,0.6,0.8,0.8,1]
+        elif(self.smote_type=="gradient" and self.n_estimators!=10):
+            print("The number of estimator is not compatible with the smote type gradient, for this type of smote the number of estimators must be 10")
+        count=0
         for tree in self.trees:
             if self.smote is not None:
                 X=self.X
@@ -49,7 +58,7 @@ class RandomForest(BaseEstimator):
                 #print(type(self.X))
                 X= torch.tensor(X)
                 y= torch.tensor(y)
-                X, y = self.smote.fit_generate(X, y, percentage=1)
+                X, y = self.smote.fit_generate(X, y, percentage=percentages[count])
                 X=X.numpy()
                 y=y.numpy()
 
@@ -61,6 +70,7 @@ class RandomForest(BaseEstimator):
                 min_samples_split=self.min_samples_split,
                 max_depth=self.max_depth
             )
+                count+=1
             else:
                 tree.train(
                 self.X,
@@ -75,7 +85,7 @@ class RandomForest(BaseEstimator):
 
 
 class RandomForestClassifier(RandomForest):
-    def __init__(self, n_estimators=10, max_features=None, min_samples_split=10, max_depth=None, criterion="entropy", smote = None):
+    def __init__(self, n_estimators=10, max_features=None, min_samples_split=10, max_depth=None, criterion="entropy", smote = None, smote_type=None):
         super(RandomForestClassifier, self).__init__(
             n_estimators=n_estimators,
             max_features=max_features,
@@ -90,6 +100,7 @@ class RandomForestClassifier(RandomForest):
             raise ValueError()
 
         self.smote = smote
+        self.smote_type=smote_type
         # Initialize empty trees
         for _ in range(self.n_estimators):
             self.trees.append(Tree(criterion=self.criterion))
