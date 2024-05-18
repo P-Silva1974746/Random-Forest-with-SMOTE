@@ -18,8 +18,22 @@ def encod_dict(X):
     
     return dic
 
-# def get_classes(predictions, map_dict):
-# still to implement
+#This function is currently not doing anything but it could be helpfull
+#It takes the values of classes and and one hot-encodes
+#   Y=[0,1,2]
+#   transforms to:
+#   Y=[[1,0,0],[0,1,0],[0,0,1]]
+def get_classes_binarized(y, n_class):
+    y_bin=[]
+    for row in y:
+        row_bin=[]
+        for i in range(n_class):
+            if(i==row):
+                row_bin.append(1)
+            else:
+                row_bin.append(0)
+        y_bin.append(row_bin)
+    return y_bin
 
 
 # benchmark=openml.study.get_suite(suite_id=99)
@@ -76,9 +90,10 @@ print(f"dataset antes smote {X_train.shape}")
 model = RandomForestClassifier(max_depth=15, smote=smote_i , smote_type="binary")
 model.fit(X_train,Y_train)
 predictions=model.predict(X_test)
-print(predictions)
-print(type(predictions))
-#print(roc_auc_score(Y_test,predictions))
+
+#this is currently working however I am not sure which parameters are the best for our case 
+print(f"Area under the curve: {roc_auc_score(Y_test,predictions, average='weighted', multi_class='ovr')}")
+print(f"Area under the curve per classe: {roc_auc_score(Y_test,predictions, average=None, multi_class='ovr')}")
 print(f"Accuracy: {accuracy(Y_test,predictions)}")
 
 
