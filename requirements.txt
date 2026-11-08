@@ -1,0 +1,10 @@
+numpy
+scipy
+pandas
+torch
+autograd
+scikit-learn
+openml
+matplotlib
+seaborn
+jupyter
